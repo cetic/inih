@@ -124,6 +124,8 @@ int ini_parse_stream(ini_reader reader, void* stream, ini_handler handler,
 #endif
         else if (*start == '[') {
             /* A "[section]" line */
+          if (!handler(user, section, NULL, NULL) && !error)
+              error = lineno;
             end = find_chars_or_comment(start + 1, "]");
             if (*end == ']') {
                 *end = '\0';
@@ -165,6 +167,8 @@ int ini_parse_stream(ini_reader reader, void* stream, ini_handler handler,
             break;
 #endif
     }
+    if (!error && !handler(user, section, NULL, NULL))
+        error = lineno;
 
 #if !INI_USE_STACK
     free(line);
